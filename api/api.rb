@@ -24,7 +24,7 @@ class ScaleApi < Sinatra::Base
 
   # Validates a token for a given host
   def validate(uuid,ak,as)
-    if Host.joins(:credentials).where('credentials.apikey' => ak, 'credentials.apisecret' => as, :uuid => uuid ).empty?
+    if Host.joins(:credentials).where('credentials.apikey' => ak, 'credentials.apisecret' => as, :uuid => uuid, :locked => false ).empty?
       return false
     else
       return true
@@ -51,7 +51,11 @@ class ScaleApi < Sinatra::Base
         return '{"ERROR":"Malformed data syntax or a bad query."}'
       end
       begin
+	# Selection mongodb collection to store metrics
         mongo_collection = @@mongo_db[metrics.first['auth']['uuid']]
+	# Append timestamp to metrics
+	metrics.first['metrics']['ts'] = Time.now.utc
+	# Store metrics
         mongo_collection.insert(metrics.first['metrics'])
       rescue Exception => e
         status 502
