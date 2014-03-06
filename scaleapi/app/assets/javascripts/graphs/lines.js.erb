@@ -7,21 +7,38 @@ $(function () {
 			if (data != null) {
 				var cpu = new Array();
 				var ts = new Array();
+				var load = new Array();
+				var mem_used = new Array();
+				var mem_free = new Array();
 				for(var i = 0; i < data.length; i++) {
-				    var obj = data[i];
-				    cpu.push(obj.cpu);
-				    ts.push(obj.ts);
+					var obj = data[i];
+					cpu.push(obj.cpu);
+					var date = new Date(obj.ts)
+			   		var hours = date.getHours();
+					if (hours < 9) var hours = "0"+hours;
+					var minutes = date.getMinutes();
+					if (minutes < 9) var minutes = "0"+minutes;
+					var seconds = date.getSeconds();
+					if (seconds < 9) var seconds = "0"+seconds;
+					var formattedTime = hours + ':' + minutes + ':' + seconds;
+					ts.push(formattedTime);
+					load.push(obj.load);
+					mem_used.push(obj.mem_used);
+					mem_free.push(obj.mem_free);
 				}
 			}
 			console.log(cpu);
 			console.log(ts);
-        $('#linechart').highcharts({
+        $('#cpuchart').highcharts({
+            chart: {
+		height: 200
+	    },
             title: {
-                text: 'Monthly Average Temperature',
+                text: 'CPU Usage',
                 x: -20 //center
             },
             subtitle: {
-                text: 'Source: WorldClimate.com',
+                text: 'HOST XXX',
                 x: -20
             },
             xAxis: {
@@ -29,7 +46,7 @@ $(function () {
             },
             yAxis: {
                 title: {
-                    text: 'Temperature (°C)'
+                    text: 'Percentage %'
                 },
                 plotLines: [{
                     value: 0,
@@ -38,7 +55,7 @@ $(function () {
                 }]
             },
             tooltip: {
-                valueSuffix: '°C'
+                valueSuffix: '%'
             },
             legend: {
                 layout: 'vertical',
@@ -46,11 +63,74 @@ $(function () {
                 verticalAlign: 'middle',
                 borderWidth: 0
             },
-            series: [{
-                name: 'Tokyo',
-                data: cpu 
-            }]
+            series: [
+		{ name: 'CPU', data: cpu }]
         });
+        $('#loadchart').highcharts({
+            chart: {
+		height: 200
+	    },
+            title: {
+                text: 'LOAD',
+                x: -20 //center
+            },
+            xAxis: {
+                categories: ts
+            },
+            yAxis: {
+                title: {
+                    text: 'Load units'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            tooltip: {
+                valueSuffix: '%'
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle',
+                borderWidth: 0
+            },
+            series: [
+		{ name: 'LOAD', color: '#FF0000', data: load }]
+        });
+        $('#memchart').highcharts({
+            title: {
+                text: 'Memory Usage',
+                x: -20 //center
+            },
+            xAxis: {
+                categories: ts
+            },
+            yAxis: {
+                title: {
+                    text: 'KB'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            tooltip: {
+                valueSuffix: 'kb'
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle',
+                borderWidth: 0
+            },
+            series: [
+		{ name: 'MEMORY used', data: mem_used },
+		{ name: 'MEMORY free', data: mem_free }]
+        });
+
 		}
 	});
 });
