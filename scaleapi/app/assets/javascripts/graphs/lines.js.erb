@@ -1,0 +1,56 @@
+$(function () {
+	$.ajax({
+		url: '/metrics/metrics_by_uuid?uuid=udokyybytzadqsomdxtvqwykadhniblnvqye', 
+		dataType: "json",
+		async: true,
+		success: function(data) {
+			if (data != null) {
+				var cpu = new Array();
+				var ts = new Array();
+				for(var i = 0; i < data.length; i++) {
+				    var obj = data[i];
+				    cpu.push(obj.cpu);
+				    ts.push(obj.ts);
+				}
+			}
+			console.log(cpu);
+			console.log(ts);
+        $('#linechart').highcharts({
+            title: {
+                text: 'Monthly Average Temperature',
+                x: -20 //center
+            },
+            subtitle: {
+                text: 'Source: WorldClimate.com',
+                x: -20
+            },
+            xAxis: {
+                categories: ts
+            },
+            yAxis: {
+                title: {
+                    text: 'Temperature (°C)'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            tooltip: {
+                valueSuffix: '°C'
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle',
+                borderWidth: 0
+            },
+            series: [{
+                name: 'Tokyo',
+                data: cpu 
+            }]
+        });
+		}
+	});
+});
